@@ -1,25 +1,36 @@
-#include <WiFi.h>
-#include <WiFiUdp.h>
+/*
+  WS2812B ArtNet Firmware for ESP32
+  © Riley Ellis, ELLISNET 2025
+  https://artnet.ellisnet.me/
+*/
+
 #include <ArtnetWifi.h>
+#include <Arduino.h>
 #include <FastLED.h>
 
-const char* ssid = "toob-";
-const char* password = "";
+#define LED_TYPE WS2812B;
 
-const int numLeds = 120; 
-const int numberOfChannels = numLeds * 3;
-#define DATA_PIN 12 
+// Wifi settings
+const char* ssid = "artnet";
+const char* password = "qycc4242";
+
+// LED settings
+const int numLeds = 300; 
+const int numberOfChannels = numLeds * 3; 
+const byte dataPin = 12;
 CRGB leds[numLeds];
 
+
 ArtnetWifi artnet;
-const int startUniverse = 0;
+const int startUniverse = 0; 
 
+const int maxUniverses = numberOfChannels / 510 + ((numberOfChannels % 510) ? 1 : 0);
+bool universesReceived[maxUniverses];
 bool sendFrame = 1;
-int previousDataLength = 0;
 
-boolean ConnectWifi(void)
+bool ConnectWifi(void)
 {
-  boolean state = true;
+  bool state = true;
   int i = 0;
 
   WiFi.begin(ssid, password);
@@ -27,66 +38,183 @@ boolean ConnectWifi(void)
   Serial.println("Connecting to WiFi");
 
   Serial.print("Connecting");
-  while (WiFi.status() != WL_CONNECTED) {
+  while (WiFi.status() != WL_CONNECTED)
+  {
     delay(500);
     Serial.print(".");
-    if (i > 50){
+    if (i > 20)
+    {
       state = false;
       break;
     }
     i++;
   }
-  if (state){
+  if (state)
+  {
     Serial.println("");
     Serial.print("Connected to ");
     Serial.println(ssid);
     Serial.print("IP address: ");
     Serial.println(WiFi.localIP());
-    leds[1] = CRGB(0,255,0);
-    FastLED.show();
-  } else {
+  }
+  else
+  {
     Serial.println("");
     Serial.println("Connection failed.");
-    leds[1] = CRGB(255,0,0);
-    FastLED.show();
   }
 
   return state;
 }
 
+void initTest()
+{
+  for (int i = 0 ; i < 36 ; i++)
+  {
+    leds[i] = CRGB(127, 0, 0);
+  }
+  FastLED.show();
+  delay(500);
+  for (int i = 0 ; i < 36 ; i++)
+  {
+    leds[i] = CRGB(0, 127, 0);
+  }
+  FastLED.show();
+  delay(500);
+  for (int i = 0 ; i < 36 ; i++)
+  {
+    leds[i] = CRGB(0, 0, 127);
+  }
+  FastLED.show();
+  delay(500);
+  for (int i = 0 ; i < numLeds ; i++)
+  {
+    leds[i] = CRGB(0, 0, 0);
+  }
+  FastLED.show();
+}
+
 void onDmxFrame(uint16_t universe, uint16_t length, uint8_t sequence, uint8_t* data)
 {
   sendFrame = 1;
-
   if (universe == 15)
   {
     FastLED.setBrightness(data[0]);
+    FastLED.show();
+  }
+
+  // range check
+  if (universe < startUniverse)
+  {
+    return;
+  }
+  uint8_t index = universe - startUniverse;
+  if (index >= maxUniverses)
+  {
+    return;
+  }
+
+  universesReceived[index] = true;
+
+  for (int i = 0 ; i < maxUniverses ; i++)
+  {
+    if (!universesReceived[i])
+    {
+      sendFrame = 0;
+      break;
+    }
   }
 
   for (int i = 0; i < length / 3; i++)
   {
-    int led = i + (universe - startUniverse) * (previousDataLength / 3);
+    int led = i + (index * 170);
     if (led < numLeds)
     {
-      leds[led] = CRGB(data[i * 3], data[i * 3 + 1], data[i * 3 + 2]);
+      if (i == 0) {
+        for (int g = 0 ; g < 38 ; g++) {
+            leds[g] = CRGB(data[i * 3], data[i * 3 + 1], data[i * 3 + 2]);
+        }
+      }
+      if (i == 1) {
+        for (int g = 38 ; g < 38*2 ; g++) {
+            leds[g] = CRGB(data[i * 3], data[i * 3 + 1], data[i * 3 + 2]);
+        }
+      }
+      if (i == 2) {
+        for (int g = 38*2 ; g < 38*3 ; g++) {
+            leds[g] = CRGB(data[i * 3], data[i * 3 + 1], data[i * 3 + 2]);
+        }
+      }
+      if (i == 3) {
+        for (int g = 38*3 ; g < 38*4; g++) {
+            leds[g] = CRGB(data[i * 3], data[i * 3 + 1], data[i * 3 + 2]);
+        }
+      }
+      if (i == 4) {
+        for (int g = 38*4 ; g < 38*5 ; g++) {
+            leds[g] = CRGB(data[i * 3], data[i * 3 + 1], data[i * 3 + 2]);
+        }
+      }
+      if (i == 5) {
+        for (int g = 38*5 ; g < 38*6 ; g++) {
+            leds[g] = CRGB(data[i * 3], data[i * 3 + 1], data[i * 3 + 2]);
+        }
+      }
+      if (i == 6) {
+        for (int g = 38*6 ; g < 38*7 ; g++) {
+            leds[g] = CRGB(data[i * 3], data[i * 3 + 1], data[i * 3 + 2]);
+        }
+      }
+      if (i == 7) {
+        for (int g = 38*7 ; g < 38*8 ; g++) {
+            leds[g] = CRGB(data[i * 3], data[i * 3 + 1], data[i * 3 + 2]);
+        }
+      }
+      
     }
+    Serial.println(i);
   }
-  previousDataLength = length;     
+  
   FastLED.show();
+  /*bool tail = false;
+  Serial.print("DMX: Univ: ");
+  Serial.print(universe, DEC);
+  Serial.print(", Seq: ");
+  Serial.print(sequence, DEC);
+  Serial.print(", Data (");
+  Serial.print(length, DEC);
+  Serial.print("): ");
+  
+  if (length > 16) {
+    length = 16;
+    tail = true;
+  }
+  // send out the buffer
+  for (uint16_t i = 0; i < length; i++)
+  {
+    Serial.print(data[i], HEX);
+    Serial.print(" ");
+  }
+  if (tail) {
+    Serial.print("...");
+  }
+  Serial.println();
+  */
+  if (sendFrame)
+  {
+    memset(universesReceived, 0, maxUniverses);
+  }
 }
 
 void setup()
 {
   Serial.begin(115200);
-  FastLED.addLeds<WS2812, DATA_PIN, GRB>(leds, numLeds);
-  Serial.println("ELLISNET ARTNET NODE V0.0");
-  leds[0] = CRGB(128,128,128);
-  FastLED.show();
+  delay(2000);
   ConnectWifi();
   artnet.begin();
-  //FastLED.setBrightness(128);
-  leds[0] = CRGB(128,128,128);
-  FastLED.show();
+  FastLED.addLeds<WS2812B, dataPin, GRB>(leds, numLeds);
+  initTest();
+
+  memset(universesReceived, 0, maxUniverses);
   artnet.setArtDmxCallback(onDmxFrame);
 }
 
