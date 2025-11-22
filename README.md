@@ -1,6 +1,6 @@
 # ArtNet Node for ESP32
 
-Lightweight Art-Net (ArtDMX) node implementation for ESP32 devices. Receives Art-Net over UDP and outputs DMX512 via an RS485 transceiver (e.g., MAX485, SN75176). Designed for simple LED and fixture control on Wi‑Fi networks.
+Lightweight Art-Net (ArtDMX) node implementation for ESP32 devices. Receives Art-Net over UDP and outputs NeoPixel signalling data. Designed for simple LED and fixture control on Wi‑Fi networks.
 
 ## Features
 - Art-Net (ArtDMX) receiver
