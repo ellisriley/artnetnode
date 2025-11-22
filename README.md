@@ -24,5 +24,3 @@ Lightweight Art-Net (ArtDMX) node implementation for ESP32 devices. Receives Art
 
 ## License & Copyright
 Copyright (c) 2025 Riley Ellis — ellisnet.me
-
-Recommended license: MIT (include LICENSE file if desired).
