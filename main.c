@@ -10,6 +10,8 @@
 
 #define LED_TYPE WS2812B;
 
+#define DEBUG_LOG true;
+
 // Wifi settings
 const char* ssid = "artnet";
 const char* password = "qycc4242";
@@ -61,6 +63,7 @@ bool ConnectWifi(void)
   {
     Serial.println("");
     Serial.println("Connection failed.");
+    Serial.println(Wifi.status());
   }
 
   return state;
@@ -129,76 +132,42 @@ void onDmxFrame(uint16_t universe, uint16_t length, uint8_t sequence, uint8_t* d
     int led = i + (index * 170);
     if (led < numLeds)
     {
-      if (i == 0) {
-        for (int g = 0 ; g < 38 ; g++) {
-            leds[g] = CRGB(data[i * 3], data[i * 3 + 1], data[i * 3 + 2]);
+      for (int x=0; x<8; x++) {
+        for (int g=38*x; g<38*(x+1); g++) {
+          leds[g] = CRGB(data[i*3], data[i*3+1], data[i*3+2]);
         }
-      }
-      if (i == 1) {
-        for (int g = 38 ; g < 38*2 ; g++) {
-            leds[g] = CRGB(data[i * 3], data[i * 3 + 1], data[i * 3 + 2]);
-        }
-      }
-      if (i == 2) {
-        for (int g = 38*2 ; g < 38*3 ; g++) {
-            leds[g] = CRGB(data[i * 3], data[i * 3 + 1], data[i * 3 + 2]);
-        }
-      }
-      if (i == 3) {
-        for (int g = 38*3 ; g < 38*4; g++) {
-            leds[g] = CRGB(data[i * 3], data[i * 3 + 1], data[i * 3 + 2]);
-        }
-      }
-      if (i == 4) {
-        for (int g = 38*4 ; g < 38*5 ; g++) {
-            leds[g] = CRGB(data[i * 3], data[i * 3 + 1], data[i * 3 + 2]);
-        }
-      }
-      if (i == 5) {
-        for (int g = 38*5 ; g < 38*6 ; g++) {
-            leds[g] = CRGB(data[i * 3], data[i * 3 + 1], data[i * 3 + 2]);
-        }
-      }
-      if (i == 6) {
-        for (int g = 38*6 ; g < 38*7 ; g++) {
-            leds[g] = CRGB(data[i * 3], data[i * 3 + 1], data[i * 3 + 2]);
-        }
-      }
-      if (i == 7) {
-        for (int g = 38*7 ; g < 38*8 ; g++) {
-            leds[g] = CRGB(data[i * 3], data[i * 3 + 1], data[i * 3 + 2]);
-        }
-      }
+      }// I knew there was an easier way
       
     }
     Serial.println(i);
   }
   
   FastLED.show();
-  /*bool tail = false;
-  Serial.print("DMX: Univ: ");
-  Serial.print(universe, DEC);
-  Serial.print(", Seq: ");
-  Serial.print(sequence, DEC);
-  Serial.print(", Data (");
-  Serial.print(length, DEC);
-  Serial.print("): ");
-  
-  if (length > 16) {
-    length = 16;
-    tail = true;
+  if (DEBUG_LOG) {
+    bool tail = false;
+    Serial.print("DMX: Univ: ");
+    Serial.print(universe, DEC);
+    Serial.print(", Seq: ");
+    Serial.print(sequence, DEC);
+    Serial.print(", Data (");
+    Serial.print(length, DEC);
+    Serial.print("): ");
+    
+    if (length > 16) {
+      length = 16;
+      tail = true;
+    }
+    // send out the buffer
+    for (uint16_t i = 0; i < length; i++)
+    {
+      Serial.print(data[i], HEX);
+      Serial.print(" ");
+    }
+    if (tail) {
+      Serial.print("...");
+    }
+    Serial.println();
   }
-  // send out the buffer
-  for (uint16_t i = 0; i < length; i++)
-  {
-    Serial.print(data[i], HEX);
-    Serial.print(" ");
-  }
-  if (tail) {
-    Serial.print("...");
-  }
-  Serial.println();
-  */
   if (sendFrame)
   {
     memset(universesReceived, 0, maxUniverses);
