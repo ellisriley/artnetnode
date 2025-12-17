@@ -18,7 +18,9 @@ const char* password = "qycc4242";
 
 // LED settings
 const int numLeds = 300; 
+const int numGroups = 8;
 const int numberOfChannels = numLeds * 3; 
+const int ledsPerGroup = floor(numLeds/numGroups)
 const byte dataPin = 12;
 CRGB leds[numLeds];
 
@@ -129,15 +131,14 @@ void onDmxFrame(uint16_t universe, uint16_t length, uint8_t sequence, uint8_t* d
 
   for (int i = 0; i < length / 3; i++)
   {
-    int led = i + (index * 170);
-    if (led < numLeds)
+    int channel = i + (index * 170);
+    if (chan < numLeds)
     {
-      for (int x=0; x<8; x++) {
-        for (int g=38*x; g<38*(x+1); g++) {
-          leds[g] = CRGB(data[i*3], data[i*3+1], data[i*3+2]);
+      for (int group=0; group<numGroups; group++) {
+        for (int led=ledsPerGroup*group; led<ledsPerGroup*(group+1); led++) {
+            leds[led] = CRGB(data[i*3], data[i*3+1], data[i*3+2]);
         }
-      }// I knew there was an easier way
-      
+      } 
     }
     Serial.println(i);
   }
