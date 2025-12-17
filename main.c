@@ -46,9 +46,13 @@ bool ConnectWifi(void)
   {
     delay(500);
     Serial.print(".");
+    leds[i] = CRGB(127,127,127);
+    FastLED.show();
     if (i > 20)
     {
       state = false;
+      leds[1-24] = CRGB(255,0,0);
+      FastLED.show();
       break;
     }
     i++;
@@ -179,11 +183,14 @@ void setup()
 {
   Serial.begin(115200);
   delay(2000);
-  ConnectWifi();
+  
   artnet.begin();
   FastLED.addLeds<WS2812B, dataPin, GRB>(leds, numLeds);
   initTest();
 
+  ConnectWifi();
+
+    
   memset(universesReceived, 0, maxUniverses);
   artnet.setArtDmxCallback(onDmxFrame);
 }
