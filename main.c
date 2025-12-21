@@ -51,14 +51,14 @@ bool ConnectWifi(void)
     if (i > 20)
     {
       state = false;
-      leds[1-24] = CRGB(255,0,0);
-      FastLED.show();
       break;
     }
     i++;
   }
   if (state)
   {
+    FastLED.clear();
+    FastLED.show();
     Serial.println("");
     Serial.print("Connected to ");
     Serial.println(ssid);
@@ -197,5 +197,15 @@ void setup()
 
 void loop()
 {
-  artnet.read();
+
+  if (WiFi.status() != WL_CONNECTED) {
+    leds[1-24] = CRGB(255,0,0);
+    FastLED.show();
+    delay(500);
+    FastLED.clear();
+    FastLED.show();
+  } 
+  else {
+    artnet.read();
+  }
 }
