@@ -10,7 +10,7 @@
 
 #define LED_TYPE WS2812B;
 
-#define DEBUG_LOG true;
+const bool DEBUG_LOG = true;
 
 // Wifi settings
 const char* ssid = "artnet";
@@ -20,7 +20,7 @@ const char* password = "qycc4242";
 const int numLeds = 300; 
 const int numGroups = 8;
 const int numberOfChannels = numLeds * 3; 
-const int ledsPerGroup = floor(numLeds/numGroups)
+const int ledsPerGroup = floor(numLeds/numGroups);
 const byte dataPin = 12;
 CRGB leds[numLeds];
 
@@ -69,7 +69,7 @@ bool ConnectWifi(void)
   {
     Serial.println("");
     Serial.println("Connection failed.");
-    Serial.println(Wifi.status());
+    Serial.println(WiFi.status());
   }
 
   return state;
